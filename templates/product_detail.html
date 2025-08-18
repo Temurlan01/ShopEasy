@@ -59,7 +59,7 @@
                     </p>
                     <div class="flex mb-6">
                         <div class="mr-4">
-                            <form method="post" action="{% url 'add-product-to-cart-url' product.id %}" class="flex-1">
+    <form method="post" action="{% url 'add-product-to-cart-url' product.id %}" class="flex-1">
     {% csrf_token %}
     <div class="flex items-end gap-4">
         <div>
@@ -70,28 +70,43 @@
                 <option value="3">3</option>
                 <option value="4">4</option>
                 <option value="5">5</option>
+                <option value="1">6</option>
+                <option value="2">7</option>
+                <option value="3">8</option>
+                <option value="4">9</option>
+                <option value="5">10</option>
             </select>
         </div>
-        <button type="submit" class="bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center">
-            <i class="fas fa-shopping-cart mr-2"></i> Добавить в корзину
+        <button type="submit"
+            class="flex-1 py-3 rounded-lg flex items-center justify-center transition
+            {% if in_cart %}
+                bg-green-500 text-white hover:bg-green-600
+            {% else %}
+                bg-indigo-600 text-white hover:bg-indigo-700
+            {% endif %}">
+            <i class="fas fa-shopping-cart mr-2"></i>
+            {% if in_cart %}В корзине{% else %}Добавить в корзину{% endif %}
         </button>
-        <form method="post" action="{% url 'add-product-to-favorite-url' product.id %}">
-                            {% csrf_token %}
-                            <button class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition flex items-center justify-center">
-                                <i class="fas fa-heart mr-2"></i> Добавить в избранное
-                            </button>
-                        </form>
+        </form>
+    <form method="post" action="{% url 'add-product-to-favorite-url' product.id %}">
+        {% csrf_token %}
+        <button type="submit"
+            class="flex-1 py-3 rounded-lg flex items-center justify-center transition
+            {% if in_favorite %}
+                bg-red-500 text-white hover:bg-red-600
+            {% else %}
+                bg-gray-200 text-gray-700 hover:bg-gray-300
+            {% endif %}">
+            <i class="fas fa-heart mr-2"></i>
+            {% if in_favorite %}В избранном{% else %}Добавить в избранное{% endif %}
+        </button>
+    </form>
     </div>
-</form>
+
                         </div>
                     </div>
-
-
-
-
                 </div>
             </div>
-        </div>
     </main>
 
     <footer class="bg-gray-800 text-white py-8">

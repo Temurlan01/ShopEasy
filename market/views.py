@@ -13,16 +13,25 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         user = self.request.user
+        product_list = Product.objects.all().order_by('-created_at')
+
+
         if user.is_authenticated:
             cart_count = user.cart_items.aggregate(total=Sum('quantity'))['total'] or 0
             favorite_count = user.favorite_products.count()
+            cart_ids = list(user.cart_items.values_list('product_id', flat=True))
+            favorite_ids = list(user.favorite_products.values_list('id', flat=True))
         else:
             cart_count = 0
             favorite_count = 0
+            cart_ids = []
+            favorite_ids = []
         context = {
-            'product_list': Product.objects.all().order_by('-created_at'),
+            'product_list': product_list,
             'cart_count': cart_count,
             'favorite_count': favorite_count,
+            'cart_ids': cart_ids,
+            'favorite_ids': favorite_ids,
         }
         return context
 
@@ -66,15 +75,20 @@ class ProductDetailView(TemplateView):
         if user.is_authenticated:
             cart_count = user.cart_products.count()
             favorite_count = user.favorite_products.count()
+            in_cart = user.cart_items.filter(product=product).exists()
+            in_favorite = user.favorite_products.filter(id=product.id).exists()
         else:
             cart_count = 0
             favorite_count = 0
-
+            in_cart = False
+            in_favorite = False
         context = {
             'product': product,
             'gallery_image': gallery_images,
             'cart_count': cart_count,
             'favorite_count': favorite_count,
+            'in_cart': in_cart,
+            'in_favorite': in_favorite,
             'quantity_range': range(1, 11),
         }
         return context
@@ -156,7 +170,7 @@ class AddProductToCartView(View):
         else:
             cart_item.quantity = quantity
         cart_item.save()
-        return redirect(request.path)
+        return redirect('cart-url')
 
 
 
