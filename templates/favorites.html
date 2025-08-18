@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Избранное — ShopEasy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+
+  <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold mb-6">Избранные товары</h1>
+    <a href="{% url 'home-url' %}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-6">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+  </svg>
+  Назад
+</a>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {% for product in favorite_products %}
+      <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+        <a href="{% url 'product-detail-url' product.id %}">
+          <div class="h-48 overflow-hidden">
+            <img src="{{ product.preview_image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+          </div>
+        </a>
+        <div class="p-4 flex flex-col gap-2">
+          <h3 class="font-bold text-gray-800 text-lg mb-1">{{product.name}}</h3>
+          <p class="text-gray-600 text-sm mb-2">{{product.description|truncatewords:10}}</p>
+          <span class="font-bold text-indigo-600">{{product.price}} сом</span>
+
+          <!-- Кнопка "Добавить в корзину" -->
+          <form method="post" action="{% url 'add-product-to-cart-url' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+              Добавить в корзину
+            </button>
+          </form>
+
+          <!-- Кнопка "Удалить из избранного" -->
+          <form method="post" action="{% url 'remove-favorite-url' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
+              Удалить из избранного
+            </button>
+          </form>
+        </div>
+      </div>
+      {% empty %}
+      <p class="col-span-full text-center text-gray-500">У вас нет избранных товаров.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+</body>
+</html>

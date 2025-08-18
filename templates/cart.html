@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Корзина — ShopEasy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+
+  <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold mb-6">Ваша корзина</h1>
+<a href="{% url 'home-url' %}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-6">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+  </svg>
+  Назад
+</a>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in cart_items %}
+      <!-- Карточка товара -->
+      <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+        <img src="{{item.product.preview_image.url}}" alt="Наушники" class="w-full h-40 object-cover" />
+        <div class="p-4 flex flex-col flex-grow">
+          <h2 class="text-lg font-semibold mb-1">{{item.product.name}}</h2>
+          <p class="text-gray-600 text-sm mb-2">{{item.product.description|truncatewords:10}}</p>
+            <p class="text-indigo-600 font-bold mb-3">{{item.total}} сом</p>
+         <label class="text-sm text-gray-700 mb-1">Количество</label>
+    <form method="post" action="{% url 'update-cart-item-url' item.id %}" class="flex items-center gap-2 mb-4">
+      {% csrf_token %}
+      <select name="quantity" onchange="this.form.submit()"
+        class="block w-20 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        {% for i in quantity_range %}
+          <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    <form method="post" action="{% url 'remove-cart-url' item.product.id %}">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-700 text-white py-2 rounded-lg shadow hover:from-red-600 hover:to-red-800 transition font-semibold text-base group">
+        Удалить
+      </button>
+    </form>
+
+        </div>
+      </div>  {% endfor %}
+    </div>
+
+    <!-- Итог -->
+    <div class="mt-8 border-t pt-6">
+      <div class="flex justify-between text-xl font-bold mb-6">
+    <span>Итого:</span>
+    <span>{{total_price}} сом</span>
+</div>
+      <button class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition">
+        Оформить заказ
+      </button>
+    </div>
+
+  </div>
+
+</body>
+</html>
