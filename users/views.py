@@ -41,7 +41,9 @@ class MakeRegisterView(View):
         email = data['email']
 
         if CustomUser.objects.filter(email=email).exists():
-            messages.error(request, "Пользователь с таким email уже существует.")
+            messages.error(request,
+                        "Пользователь с таким email уже существует."
+                           )
             return redirect('register-url')
 
         user = CustomUser.objects.create_user(

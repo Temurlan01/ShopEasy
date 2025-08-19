@@ -1,6 +1,7 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Sum
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.views import View
 from django.views.generic import TemplateView
 from market.models import Product
@@ -17,10 +18,16 @@ class HomeView(TemplateView):
 
 
         if user.is_authenticated:
-            cart_count = user.cart_items.aggregate(total=Sum('quantity'))['total'] or 0
+            cart_count = user.cart_items.aggregate(
+                total=Sum('quantity'))['total'] or 0
             favorite_count = user.favorite_products.count()
-            cart_ids = list(user.cart_items.values_list('product_id', flat=True))
-            favorite_ids = list(user.favorite_products.values_list('id', flat=True))
+
+            cart_ids = list(user.cart_items.values_list(
+                'product_id', flat=True)
+            )
+            favorite_ids = list(user.favorite_products.values_list(
+                'id', flat=True)
+            )
         else:
             cart_count = 0
             favorite_count = 0
@@ -45,15 +52,30 @@ class HomeSearchView(TemplateView):
         user = self.request.user
         search_word = self.request.GET['search']
         if user.is_authenticated:
-            cart_count = user.cart_products.count()
+            cart_count = user.cart_items.aggregate(
+                total=Sum('quantity'))['total'] or 0
             favorite_count = user.favorite_products.count()
+
+            cart_ids = list(user.cart_items.values_list(
+                'product_id', flat=True)
+            )
+            favorite_ids = list(user.favorite_products.values_list(
+                'id', flat=True)
+            )
         else:
             cart_count = 0
             favorite_count = 0
+            cart_ids = []
+            favorite_ids = []
         context = {
-            'product_list': Product.objects.filter(Q(name__icontains=search_word) | Q(description__icontains=search_word),),
+            'product_list': Product.objects.filter(
+                Q(name__icontains=search_word) |
+                Q(description__icontains=search_word),
+            ),
             'cart_count': cart_count,
             'favorite_count': favorite_count,
+            'cart_ids': cart_ids,
+            'favorite_ids': favorite_ids,
         }
         return context
 
@@ -73,7 +95,8 @@ class ProductDetailView(TemplateView):
 
         user = self.request.user
         if user.is_authenticated:
-            cart_count = user.cart_products.count()
+            cart_count = user.cart_items.aggregate(
+                total=Sum('quantity'))['total'] or 0
             favorite_count = user.favorite_products.count()
             in_cart = user.cart_items.filter(product=product).exists()
             in_favorite = user.favorite_products.filter(id=product.id).exists()
@@ -95,14 +118,15 @@ class ProductDetailView(TemplateView):
 
 
 
-class FavoriteProductListView(TemplateView):
+class FavoriteProductListView(LoginRequiredMixin, TemplateView):
     """Получает список избранных товаров пользователя"""
     template_name = 'favorites.html'
 
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = {
-            'favorite_products': user.favorite_products.all().order_by('-created_at')
+            'favorite_products': user.favorite_products.all().
+            order_by('-created_at')
         }
         return context
 
@@ -113,12 +137,14 @@ class AddProductToFavoriteView(View):
     template_name = 'favorites.html'
 
     def post(self, request, pk):
-        user = request.user
-        product = get_object_or_404(Product, id=pk)
-        user.favorite_products.add(product)
-        user.save()
-
-        return redirect('favorites-url')
+        if request.user.is_authenticated:
+            user = request.user
+            product = get_object_or_404(Product, id=pk)
+            user.favorite_products.add(product)
+            user.save()
+            return redirect('favorites-url')
+        else:
+            return render(request, 'login.html')
 
 
 
@@ -136,7 +162,7 @@ class RemoveProductToFavoriteView(View):
 
 
 
-class CartProductListView(TemplateView):
+class CartProductListView(LoginRequiredMixin, TemplateView):
     """Получает список товаров в корзине пользователя"""
     template_name = 'cart.html'
 
@@ -161,16 +187,21 @@ class AddProductToCartView(View):
     template_name = 'cart.html'
 
     def post(self, request, pk):
-        user = request.user
-        product = get_object_or_404(Product, id=pk)
-        quantity = int(request.POST.get('quantity', 1))
-        cart_item, created = CartItem.objects.get_or_create(user=user, product=product)
-        if not created:
-            cart_item.quantity += quantity
+        if request.user.is_authenticated:
+            user = request.user
+            product = get_object_or_404(Product, id=pk)
+            quantity = int(request.POST.get('quantity', 1))
+            cart_item, created = CartItem.objects.get_or_create(
+                user=user, product=product
+            )
+            if not created:
+                cart_item.quantity += quantity
+            else:
+                cart_item.quantity = quantity
+            cart_item.save()
+            return redirect('cart-url')
         else:
-            cart_item.quantity = quantity
-        cart_item.save()
-        return redirect('cart-url')
+            return render(request, 'login.html')
 
 
 
@@ -189,7 +220,9 @@ class RemoveProductToCartView(View):
     template_name = 'favorites.html'
 
     def post(self, request, pk):
-        cart_item = get_object_or_404(CartItem, product_id=pk, user=request.user)
+        cart_item = get_object_or_404(
+            CartItem, product_id=pk, user=request.user
+        )
         cart_item.delete()
         return redirect('cart-url')
 

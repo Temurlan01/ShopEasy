@@ -15,7 +15,9 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductGalleryInlineAdmin]
 
     def image_tag(self, obj):
-        return format_html('<img src="{}" width="100" height="100" />'.format(obj.preview_image.url))
+        return format_html(
+    '<img src="{}" width="100" height="100" />'.format(obj.preview_image.url)
+                           )
 
     image_tag.short_description = 'Превью-изображение'
 

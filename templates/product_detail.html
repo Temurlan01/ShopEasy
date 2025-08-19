@@ -87,7 +87,7 @@
             <i class="fas fa-shopping-cart mr-2"></i>
             {% if in_cart %}В корзине{% else %}Добавить в корзину{% endif %}
         </button>
-        </form>
+    </form>
     <form method="post" action="{% url 'add-product-to-favorite-url' product.id %}">
         {% csrf_token %}
         <button type="submit"
