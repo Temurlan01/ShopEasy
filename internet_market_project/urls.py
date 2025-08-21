@@ -14,7 +14,7 @@ from users.views import (RegisterView, LoginView, MakeLoginView,
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/', HomeView.as_view(), name='home-url'),
+    path('', HomeView.as_view(), name='home-url'),
     path('home/search/', HomeSearchView.as_view(), name='home-search-url'),
     path('register/', RegisterView.as_view(), name='register-url'),
     path('login/', LoginView.as_view(), name='login-url'),
