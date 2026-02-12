@@ -5,7 +5,8 @@ from django.conf.urls.static import static
 
 from market.views import (HomeView, CartProductListView, ProductDetailView,
 FavoriteProductListView,AddProductToFavoriteView, RemoveProductToFavoriteView,
-AddProductToCartView, RemoveProductToCartView, HomeSearchView,UpdateCartItemView
+AddProductToCartView, RemoveProductToCartView, HomeSearchView,UpdateCartItemView,
+SendProductFeedbackView
                           )
 from orders.views import CreateOrderView,OrderSuccess
 from users.views import (RegisterView, LoginView, MakeLoginView,
@@ -34,6 +35,7 @@ urlpatterns = [
     path('product_detail/<slug:slug>/', ProductDetailView.as_view(),
          name='product-detail-url'
          ),
+    path('products/<int:pk>/send-feedback/', SendProductFeedbackView.as_view(), name='send-feedback-url'),
     path('add-product-to-cart/<int:pk>/', AddProductToCartView.as_view(),
          name='add-product-to-cart-url'
          ),

@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from decouple import config
+from django.conf.global_settings import EMAIL_BACKEND, EMAIL_HOST_PASSWORD
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,11 +15,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
-
+# TODO: зачем нужен contains и icontains? и как это работает в sqlite3?
+#  прочитай что такое логи?
+# TODO: как работает связь ManyToMany? что такое промежуточная таблица, и когда в джанго нужно явно создавать промежуточную моель а когда просто указать ManyToManyField?
 # Application definition
 
 INSTALLED_APPS = [
@@ -122,3 +125,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login-url'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'herejon20@gmail.com'
+EMAIL_HOST_PASSWORD = 'wfpt ttuz dowg xhzw'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

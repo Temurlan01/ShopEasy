@@ -21,7 +21,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {% for product in favorite_products %}
       <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-        <a href="{% url 'product-detail-url' product.id %}">
+        <a href="{% url 'product-detail-url' product.slug %}">
           <div class="h-48 overflow-hidden">
             <img src="{{ product.preview_image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
           </div>

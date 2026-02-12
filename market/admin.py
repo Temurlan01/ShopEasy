@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from market.models import Product, ProductGallery
+from market.models import Product, ProductGallery, ProductRating
 
 
 class ProductGalleryInlineAdmin(admin.TabularInline):
@@ -22,7 +22,9 @@ class ProductAdmin(admin.ModelAdmin):
     image_tag.short_description = 'Превью-изображение'
 
 
-
+@admin.register(ProductRating)
+class ProductRatingAdmin(admin.ModelAdmin):
+    list_display = ('rating','user', 'product',)
 
 
 

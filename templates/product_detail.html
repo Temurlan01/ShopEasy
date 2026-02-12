@@ -59,24 +59,25 @@
                     </p>
                     <div class="flex mb-6">
                         <div class="mr-4">
-    <form method="post" action="{% url 'add-product-to-cart-url' product.id %}" class="flex-1">
-    {% csrf_token %}
-    <div class="flex items-end gap-4">
-        <div>
-            <label for="quantity" class="block text-gray-700 mb-2">Количество</label>
-            <select id="quantity" name="quantity" class="border rounded px-3 py-2 w-24">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-            </select>
-        </div>
+
+        <form method="post" action="{% url 'add-product-to-cart-url' product.id %}" class="flex-1">
+            {% csrf_token %}
+            <div class="flex items-end gap-4">
+                <div>
+                    <label for="quantity" class="block text-gray-700 mb-2">Количество</label>
+                    <select id="quantity" name="quantity" class="border rounded px-3 py-2 w-24">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
         <button type="submit"
             class="flex-1 py-3 rounded-lg flex items-center justify-center transition
             {% if in_cart %}
@@ -107,6 +108,168 @@
                     </div>
                 </div>
             </div>
+       <!-- REVIEWS -->
+<section class="mt-20 flex justify-center">
+  <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl p-10">
+
+    <h3 class="text-3xl font-bold text-gray-800 text-center mb-8">
+      Оставить отзыв
+    </h3>
+
+    <form action="{% url 'send-feedback-url' product.id %}" method="POST" class="space-y-6">
+        {% csrf_token %}
+      <!-- hidden rating -->
+      <input type="hidden" id="rating-value" name="rating_value">
+
+      <!-- Stars -->
+      <div class="text-center">
+        <p class="text-gray-500 mb-3">Ваша оценка</p>
+
+        <div id="stars" class="flex justify-center gap-2 text-5xl select-none cursor-pointer" >
+          <span data-value="1" class="star text-gray-300 transition-colors">★</span>
+          <span data-value="2" class="star text-gray-300 transition-colors">★</span>
+          <span data-value="3" class="star text-gray-300 transition-colors">★</span>
+          <span data-value="4" class="star text-gray-300 transition-colors">★</span>
+          <span data-value="5" class="star text-gray-300 transition-colors">★</span>
+        </div>
+
+        <p id="rating-text" class="mt-3 text-sm text-gray-500 opacity-0 transition">
+          Нажмите на звезду
+        </p>
+      </div>
+
+      <!-- Comment -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-2"  >
+          Ваш комментарий
+        </label>
+        <textarea name="comment" rows="4" placeholder="Поделитесь впечатлениями о товаре..." class="w-full rounded-xl border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none transition"  required></textarea>
+        <p class="text-xs text-gray-400 mt-1">
+          Минимум 10 символов
+        </p>
+      </div>
+
+      <!-- Button -->
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-indigo-600 to-purple-600
+               text-white py-4 rounded-xl text-lg font-semibold
+               hover:scale-[1.02] hover:shadow-xl
+               active:scale-[0.97] transition-all duration-200">
+        Отправить отзыв
+      </button>
+    </form>
+  </div>
+</section>
+        <section class="mt-16 max-w-3xl mx-auto">
+  <h3 class="text-2xl font-bold mb-6">Отзывы покупателей</h3>
+
+  {% for review in reviews %}
+  <div class="bg-white rounded-2xl shadow p-6 mb-4">
+
+    <!-- header -->
+    <div class="flex items-center gap-4 mb-3">
+
+      <!-- avatar -->
+      <div class="w-12 h-12 rounded-full bg-indigo-500 text-white
+                  flex items-center justify-center font-bold text-lg">
+        {{ review.user.first_name|slice:":1"|upper }}
+      </div>
+
+      <!-- name + date -->
+      <div>
+        <p class="font-semibold text-gray-800">
+          {{ review.user.first_name|default:review.user.email }}
+        </p>
+        <p class="text-xs text-gray-400">
+          {{ review.created_at|date:"d.m.Y" }}
+        </p>
+      </div>
+    </div>
+
+    <!-- stars -->
+    <div class="flex gap-1 text-yellow-400 mb-2">
+      {% for i in "12345" %}
+        {% if forloop.counter <= review.rating %}
+          <i class="fas fa-star"></i>
+        {% else %}
+          <i class="far fa-star text-gray-300"></i>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- comment -->
+    <p class="text-gray-700 leading-relaxed">
+      {{ review.comment }}
+    </p>
+  </div>
+  {% empty %}
+    <p class="text-gray-500">Пока нет отзывов</p>
+  {% endfor %}
+</section>
+
+
+
+
+<!-- JS -->
+<script>
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('rating-value');
+  const ratingText = document.getElementById('rating-text');
+
+  const labels = {
+    1: 'Очень плохо',
+    2: 'Плохо',
+    3: 'Нормально',
+    4: 'Хорошо',
+    5: 'Отлично'
+  };
+
+  let currentRating = 0;
+
+  stars.forEach(star => {
+    star.addEventListener('mouseenter', () => {
+      paintStars(star.dataset.value);
+    });
+
+    star.addEventListener('mouseleave', () => {
+      paintStars(currentRating);
+    });
+
+    star.addEventListener('click', () => {
+      currentRating = star.dataset.value;
+      ratingInput.value = currentRating;
+
+      ratingText.textContent = labels[currentRating];
+      ratingText.classList.remove('opacity-0');
+
+      paintStars(currentRating);
+    });
+  });
+
+  function paintStars(value) {
+  value = Number(value);
+
+  stars.forEach(star => {
+    const starValue = Number(star.dataset.value);
+
+    if (starValue <= value) {
+      star.classList.remove('text-gray-300');
+      star.classList.add('text-yellow-400');
+    } else {
+      star.classList.remove('text-yellow-400');
+      star.classList.add('text-gray-300');
+    }
+  });
+}
+</script>
+
+
+
+
+
+        
+
     </main>
 
     <footer class="bg-gray-800 text-white py-8">
@@ -145,5 +308,8 @@
             </div>
         </div>
     </footer>
+
+</script>
+
 </body>
 </html>
